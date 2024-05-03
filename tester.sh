@@ -2,11 +2,15 @@
 GREEN='\033[0;32m'
 RED='\033[0;31m'
 NC='\033[0m'
-TIMEOUT=10
+
+read -p "How much time do you want to wait for the living test ? (default 10s) : " TIMEOUT
+if [ -z "$TIMEOUT" ]; then
+    TIMEOUT=10
+fi
 
 echo "--Dying test--"
 
-./philo 2 250 140 100 > out
+$leak./philo 2 250 140 100 > out
 <out grep -q "died" && echo -e "[ TEST 1 ] (2 250 140 100) : " $GREEN"OK"$NC "("$(grep "died" out)$NC")" || echo -e "[ TEST 1 ] (2 250 140 100) :" $RED"KO"$NC "("$(grep "died" out)$NC")"
 rm out
 ./philo 1 200 200 200 > out
