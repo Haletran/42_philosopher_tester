@@ -1,6 +1,6 @@
 # 42_philosopher_tester
 
-Run the tester with :
+Put the tester next to your executable and run the tester with :
 ```
 bash tester.sh
 ```
