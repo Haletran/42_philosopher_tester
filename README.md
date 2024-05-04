@@ -1,4 +1,9 @@
 # 42_philosopher_tester
+>Minimalistic philosopher tester
+>Made in bash script
+
+![tester gif](tester.gif)
+
 
 ## Usage
 
