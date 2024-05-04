@@ -1,9 +1,7 @@
 # 42_philosopher_tester
 >Minimalistic philosopher tester
 >Made in bash script
-
-![tester gif](show_tester.gif)
-
+<img src="show_tester.gif" width="600" height="500">
 
 ## Usage
 
