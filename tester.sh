@@ -3,32 +3,61 @@ GREEN='\033[0;32m'
 RED='\033[0;31m'
 NC='\033[0m'
 
-read -p "How much time do you want to wait for the living test ? (default 10s) : " TIMEOUT
+read -p "How much second for timeout ? (default 10s) : " TIMEOUT
 if [ -z "$TIMEOUT" ]; then
     TIMEOUT=10
 fi
 
+read -p "Do you want to check leaks ? (y/n) : " LEAK
+if [ "$LEAK" = "y" ]; then
+    leak="valgrind --leak-check=full --show-leak-kinds=all --track-origins=yes"
+else
+    leak=""
+fi
+
+echo "--Mandatory tests--"
+timeout 2 $leak ./philo 1 800 200 200 > out
+<out grep -q "died" && echo -e "[ TEST 1 ] (1 800 200 200) : " $GREEN"OK"$NC "("$(grep "died" out)$NC")" || echo -e "[ TEST 1 ] (1 800 200 200) :" $RED"KO"$NC "("$(grep "died" out)$NC")"
+rm out
+timeout $TIMEOUT $leak ./philo 5 800 200 200 > out
+<out grep -q "died" && echo -e "[ TEST 2 ] (5 800 200 200) :" $RED"KO"$NC "("$(grep "died" out)$NC")" || echo -e "[ TEST 2 ] (5 800 200 200) :" $GREEN"OK"$NC
+rm out
+timeout $TIMEOUT $leak ./philo 5 800 200 200 7 > out
+<out grep -q "died" && echo -e "[ TEST 3 ] (5 800 200 200 7) :" $RED"KO"$NC "("$(grep "died" out)$NC")" || echo -e "[ TEST 3 ] (5 800 200 200 7) :" $GREEN"OK"$NC
+if [ $(grep "eating" out | wc -l) -ge 35 ]; then
+    echo -e "-> count : " $GREEN"OK" "("$(<out grep "eating" | wc -l)")"$NC "("$(<out grep "thinking" | wc -l)")" "("$(<out grep "sleeping" | wc -l)")"
+else
+    echo -e "-> count : " $RED"KO" "("$(<out grep "eating" | wc -l)")"$NC "("$(<out grep "thinking" | wc -l)")" "("$(<out grep "sleeping" | wc -l)")"
+fi
+rm out
+timeout $TIMEOUT $leak ./philo 4 410 200 200 > out
+<out grep -q "died" && echo -e "[ TEST 4 ] (4 410 200 200) :" $RED"KO"$NC "("$(grep "died" out)$NC")" || echo -e "[ TEST 4 ] (4 410 200 200) :" $GREEN"OK"$NC
+rm out
+timeout $TIMEOUT $leak ./philo 4 310 200 100 > out
+<out grep -q "died" && echo -e "[ TEST 5 ] (4 310 200 100) :" $GREEN"OK"$NC "("$(grep "died" out)$NC")" || echo -e "[ TEST 5 ] (4 310 200 100) :" $RED"KO"$NC
+rm out
+
 echo "--Dying test--"
 
-$leak./philo 2 250 140 100 > out
+timeout 2 ./philo 2 250 140 100 > out
 <out grep -q "died" && echo -e "[ TEST 1 ] (2 250 140 100) : " $GREEN"OK"$NC "("$(grep "died" out)$NC")" || echo -e "[ TEST 1 ] (2 250 140 100) :" $RED"KO"$NC "("$(grep "died" out)$NC")"
 rm out
-./philo 1 200 200 200 > out
+timeout 2 ./philo 1 200 200 200 > out
 <out grep -q "died" && echo -e "[ TEST 2 ] (1 200 200 200) :" $GREEN"OK"$NC "("$(grep "died" out)$NC")" || echo -e "[ TEST 2 ] (1 200 200 200) :" $RED"KO"$NC "("$(grep "died" out)$NC")"
 rm out
-./philo 4 200 210 200 > out
+timeout 2 ./philo 4 200 210 200 > out
 <out grep -q "died" && echo -e "[ TEST 3 ] (4 200 210 200) :" $GREEN"OK"$NC "("$(grep "died" out)$NC")" || echo -e "[ TEST 3 ] (4 200 210 200) :" $RED"KO"$NC "("$(grep "died" out)$NC")"
 rm out
-./philo 4 310 200 100 > out
+timeout 2 ./philo 4 310 200 100 > out
 <out grep -q "died" && echo -e "[ TEST 4 ] (4 310 200 100) :" $GREEN"OK"$NC "("$(grep "died" out)$NC")" || echo -e "[ TEST 4 ] (4 310 200 100) :" $RED"KO"$NC "("$(grep "died" out)$NC")"
 rm out
-./philo 131 596 200 200 > out
+timeout 2 ./philo 131 596 200 200 > out
 <out grep -q "died" && echo -e "[ TEST 5 ] (131 596 200 200) :"  $GREEN"OK"$NC "("$(grep "died" out)$NC")" || echo -e "[ TEST 5 ] (131 596 200 200) :" $RED"KO"$NC "("$(grep "died" out)$NC")"
 rm out
-./philo 131 596 200 200 10 > out
+timeout 2 ./philo 131 596 200 200 10 > out
 <out grep -q "died" && echo -e "[ TEST 6 ] (131 596 200 200 10) :" $GREEN"OK"$NC "("$(grep "died" out)$NC")" || echo -e "[ TEST 6 ] (131 596 200 200 10) :" $RED"KO"$NC "("$(grep "died" out)$NC")"
 rm out
-./philo 50 400 200 200 > out
+timeout 2 ./philo 50 400 200 200 > out
 <out grep -q "died" && echo -e "[ TEST 7 ] (50 400 200 200) :" $GREEN"OK"$NC "("$(grep "died" out)$NC")" || echo -e "[ TEST 7 ] (50 400 200 200) :" $RED"KO"$NC "("$(grep "died" out)$NC")"
 rm out
 
@@ -40,19 +69,19 @@ rm out
 timeout $TIMEOUT ./philo 2 800 200 200 > out
 grep -q "died" out && echo -e "[ TEST 2 ] (2 800 200 200) :" $RED"KO"$NC || echo -e "[ TEST 2 ] (2 800 200 200) : " $GREEN"OK"$NC
 rm out
-timeout $TIMEOUT ./philo 5 800 200 200 > out
+timeout $TIMEOUT  ./philo 5 800 200 200 > out
 grep -q "died" out && echo -e "[ TEST 3 ] (5 800 200 200) :" $RED"KO"$NC || echo -e "[ TEST 3 ] (5 800 200 200) : " $GREEN"OK"$NC
 rm out
-timeout $TIMEOUT ./philo 4 2147483647 200 200 > out
+timeout $TIMEOUT  ./philo 4 2147483647 200 200 > out
 grep -q "died" out && echo -e "[ TEST 4 ] (4 2147483647 200 200) :" $RED"KO"$NC || echo -e "[ TEST 4 ] (4 2147483647 200 200) : " $GREEN"OK"$NC
 rm out
-timeout $TIMEOUT ./philo 200 410 200 200 > out
+timeout $TIMEOUT  ./philo 200 410 200 200 > out
 grep -q "died" out && echo -e "[ TEST 5 ] (200 410 200 200) :" $RED"KO"$NC || echo -e "[ TEST 5 ] (200 410 200 200) : " $GREEN"OK"$NC
 rm out
 
 echo "--Must eats--"
 
-./philo 5 800 200 200 10 > out
+ ./philo 5 800 200 200 10 > out
 grep -q "died" out && echo -e "[ TEST 1 ] (5 800 200 200 10) :" $RED"KO"$NC || echo -e "[ TEST 1 ] (5 800 200 200 10) : " $GREEN"OK"$NC
 if [ $(grep "eating" out | wc -l) -ge 50 ]; then
     echo -e "-> count : " $GREEN"OK" "("$(<out grep "eating" | wc -l)")"$NC "("$(<out grep "thinking" | wc -l)")" "("$(<out grep "sleeping" | wc -l)")"
@@ -60,7 +89,7 @@ else
     echo -e "-> count : " $RED"KO" "("$(<out grep "eating" | wc -l)")"$NC "("$(<out grep "thinking" | wc -l)")" "("$(<out grep "sleeping" | wc -l)")"
 fi
 rm out
-./philo 5 800 200 200 7 > out
+ ./philo 5 800 200 200 7 > out
 grep -q "died" out && echo -e "[ TEST 2 ] (5 800 200 200 7) :" $RED"KO"$NC || echo -e "[ TEST 2 ] (5 800 200 200 7) : " $GREEN"OK"$NC
 if [ $(grep "eating" out | wc -l) -ge 35 ]; then
     echo -e "-> count : " $GREEN"OK" "("$(<out grep "eating" | wc -l)")"$NC "("$(<out grep "thinking" | wc -l)")" "("$(<out grep "sleeping" | wc -l)")"
@@ -68,6 +97,6 @@ else
     echo -e "-> count : " $RED"KO" "("$(<out grep "eating" | wc -l)")"$NC "("$(<out grep "thinking" | wc -l)")" "("$(<out grep "sleeping" | wc -l)")"
 fi
 rm out
-./philo 131 596 200 200 10 > out
+ ./philo 131 596 200 200 10 > out
 grep -q "died" out && echo -e "[ TEST 3 ] (131 596 200 200 10) :" $GREEN"OK"$NC || echo -e "[ TEST 3 ] (131 596 200 200 10) : " $RED"KO"$NC
 rm out
