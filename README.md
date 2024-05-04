@@ -2,7 +2,7 @@
 >Minimalistic philosopher tester
 >Made in bash script
 
-![tester gif](tester.gif)
+![tester gif](show_tester.gif)
 
 
 ## Usage
