@@ -1,7 +1,11 @@
 # 42_philosopher_tester
+![Size](https://img.shields.io/github/repo-size/Haletran/42_philosopher_tester)
+![Open Source](https://badges.frapsoft.com/os/v2/open-source.svg?v=103)
+
 >Minimalistic philosopher tester
 >Made in bash script
 <img src="show_tester.gif" width="600" height="500">
+
 
 ## Usage
 
