@@ -58,8 +58,8 @@ input()
     
     read -p "Do you want to check leaks ? (y/N) : " LEAK
     if [ "$LEAK" = "y" ]; then
-        echo "the tester can cause some leaks on simulation that run indifinitely"
-        leak="valgrind --leak-check=full --show-leak-kinds=all --track-origins=yes"
+        echo -e $RED"the tester can cause some leaks on living_test"$NC
+        leak="valgrind --tool=helgrind --leak-check=full --show-leak-kinds=all --track-origins=yes"
     else
         leak=""
     fi
