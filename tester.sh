@@ -1,102 +1,109 @@
 #!/bin/bash
+
+MAGENTA='\033[0;35m'
 GREEN='\033[0;32m'
 RED='\033[0;31m'
 NC='\033[0m'
+total_tests=0
 
-read -p "How much second for timeout ? (default 10s) : " TIMEOUT
-if [ -z "$TIMEOUT" ]; then
-    TIMEOUT=10
-fi
 
-read -p "Do you want to check leaks ? (y/n) : " LEAK
-if [ "$LEAK" = "y" ]; then
-    leak="valgrind --leak-check=full --show-leak-kinds=all --track-origins=yes"
-else
-    leak=""
-fi
+dying_test()
+{
+    ((total_tests++))
+    timeout $1 $leak ./philo "${@:2}" > out
+    if <out grep -q "died"; then
+        echo -e "[ TEST $total_tests ] (${@:2}) : " $GREEN"OK"$NC "("$(grep "died" out)$NC")"
+    else
+        echo -e "[ TEST $total_tests ] (${@:2}) :" $RED"KO"$NC
+    fi
+    rm out
+}
 
-echo "--Mandatory tests--"
-timeout 2 $leak ./philo 1 800 200 200 > out
-<out grep -q "died" && echo -e "[ TEST 1 ] (1 800 200 200) : " $GREEN"OK"$NC "("$(grep "died" out)$NC")" || echo -e "[ TEST 1 ] (1 800 200 200) :" $RED"KO"$NC "("$(grep "died" out)$NC")"
-rm out
-timeout $TIMEOUT $leak ./philo 5 800 200 200 > out
-<out grep -q "died" && echo -e "[ TEST 2 ] (5 800 200 200) :" $RED"KO"$NC "("$(grep "died" out)$NC")" || echo -e "[ TEST 2 ] (5 800 200 200) :" $GREEN"OK"$NC
-rm out
-timeout $TIMEOUT $leak ./philo 5 800 200 200 7 > out
-<out grep -q "died" && echo -e "[ TEST 3 ] (5 800 200 200 7) :" $RED"KO"$NC "("$(grep "died" out)$NC")" || echo -e "[ TEST 3 ] (5 800 200 200 7) :" $GREEN"OK"$NC
-if [ $(grep "eating" out | wc -l) -ge 35 ]; then
-    echo -e "-> count : " $GREEN"OK" "("$(<out grep "eating" | wc -l)")"$NC "("$(<out grep "thinking" | wc -l)")" "("$(<out grep "sleeping" | wc -l)")"
-else
-    echo -e "-> count : " $RED"KO" "("$(<out grep "eating" | wc -l)")"$NC "("$(<out grep "thinking" | wc -l)")" "("$(<out grep "sleeping" | wc -l)")"
-fi
-rm out
-timeout $TIMEOUT $leak ./philo 4 410 200 200 > out
-<out grep -q "died" && echo -e "[ TEST 4 ] (4 410 200 200) :" $RED"KO"$NC "("$(grep "died" out)$NC")" || echo -e "[ TEST 4 ] (4 410 200 200) :" $GREEN"OK"$NC
-rm out
-timeout $TIMEOUT $leak ./philo 4 310 200 100 > out
-<out grep -q "died" && echo -e "[ TEST 5 ] (4 310 200 100) :" $GREEN"OK"$NC "("$(grep "died" out)$NC")" || echo -e "[ TEST 5 ] (4 310 200 100) :" $RED"KO"$NC
-rm out
+living_test()
+{
+    ((total_tests++))
+    timeout $1 $leak ./philo "${@:2}" > out
+    if <out grep -q "died"; then
+        echo -e "[ TEST $total_tests ] (${@:2}) :" $RED"KO"$NC
+    else
+        echo -e "[ TEST $total_tests ] (${@:2}) : " $GREEN"OK"$NC
+    fi
+    rm out
+}
 
-echo "--Dying test--"
+must_eat_test()
+{
+    ((total_tests++))
+    timeout $2 $leak ./philo "${@:3}" > out
+    if <out grep -q "died"; then
+        echo -e "[ TEST $total_tests ] (${@:3}) :" $RED"KO"$NC "("$(grep "died" out)$NC")"
+    else
+        echo -e "[ TEST $total_tests ] (${@:3}) : " $GREEN"OK"$NC
+    fi
+    if [ $(grep "eating" out | wc -l) -ge $1 ]; then
+        echo -e "-> count : " $GREEN"OK" "("$(<out grep "eating" | wc -l)")"$NC "("$(<out grep "thinking" | wc -l)")" "("$(<out grep "sleeping" | wc -l)")"
+    else
+        echo -e "-> count : " $RED"KO" "("$(<out grep "eating" | wc -l)")"$NC "("$(<out grep "thinking" | wc -l)")" "("$(<out grep "sleeping" | wc -l)")"
+    fi
+    rm out
 
-timeout 2 ./philo 2 250 140 100 > out
-<out grep -q "died" && echo -e "[ TEST 1 ] (2 250 140 100) : " $GREEN"OK"$NC "("$(grep "died" out)$NC")" || echo -e "[ TEST 1 ] (2 250 140 100) :" $RED"KO"$NC "("$(grep "died" out)$NC")"
-rm out
-timeout 2 ./philo 1 200 200 200 > out
-<out grep -q "died" && echo -e "[ TEST 2 ] (1 200 200 200) :" $GREEN"OK"$NC "("$(grep "died" out)$NC")" || echo -e "[ TEST 2 ] (1 200 200 200) :" $RED"KO"$NC "("$(grep "died" out)$NC")"
-rm out
-timeout 2 ./philo 4 200 210 200 > out
-<out grep -q "died" && echo -e "[ TEST 3 ] (4 200 210 200) :" $GREEN"OK"$NC "("$(grep "died" out)$NC")" || echo -e "[ TEST 3 ] (4 200 210 200) :" $RED"KO"$NC "("$(grep "died" out)$NC")"
-rm out
-timeout 2 ./philo 4 310 200 100 > out
-<out grep -q "died" && echo -e "[ TEST 4 ] (4 310 200 100) :" $GREEN"OK"$NC "("$(grep "died" out)$NC")" || echo -e "[ TEST 4 ] (4 310 200 100) :" $RED"KO"$NC "("$(grep "died" out)$NC")"
-rm out
-timeout 2 ./philo 131 596 200 200 > out
-<out grep -q "died" && echo -e "[ TEST 5 ] (131 596 200 200) :"  $GREEN"OK"$NC "("$(grep "died" out)$NC")" || echo -e "[ TEST 5 ] (131 596 200 200) :" $RED"KO"$NC "("$(grep "died" out)$NC")"
-rm out
-timeout 2 ./philo 131 596 200 200 10 > out
-<out grep -q "died" && echo -e "[ TEST 6 ] (131 596 200 200 10) :" $GREEN"OK"$NC "("$(grep "died" out)$NC")" || echo -e "[ TEST 6 ] (131 596 200 200 10) :" $RED"KO"$NC "("$(grep "died" out)$NC")"
-rm out
-timeout 2 ./philo 50 400 200 200 > out
-<out grep -q "died" && echo -e "[ TEST 7 ] (50 400 200 200) :" $GREEN"OK"$NC "("$(grep "died" out)$NC")" || echo -e "[ TEST 7 ] (50 400 200 200) :" $RED"KO"$NC "("$(grep "died" out)$NC")"
-rm out
+}
 
-echo "--Living test--" "(timeout $TIMEOUT)"
+input()
+{
+    read -p "How much second for timeout ? (default 10s) : " TIMEOUT
+    if [ -z "$TIMEOUT" ]; then
+        TIMEOUT=10
+    fi
+    
+    read -p "Do you want to check leaks ? (y/N) : " LEAK
+    if [ "$LEAK" = "y" ]; then
+        echo "the tester can cause some leaks on simulation that run indifinitely"
+        leak="valgrind --leak-check=full --show-leak-kinds=all --track-origins=yes"
+    else
+        leak=""
+    fi
+}
 
-timeout $TIMEOUT ./philo 4 410 200 200 > out
-grep -q "died" out && echo -e "[ TEST 1 ] (4 410 200 200) :" $RED"KO"$NC || echo -e "[ TEST 1 ] (4 410 200 200) : " $GREEN"OK"$NC
-rm out
-timeout $TIMEOUT ./philo 2 800 200 200 > out
-grep -q "died" out && echo -e "[ TEST 2 ] (2 800 200 200) :" $RED"KO"$NC || echo -e "[ TEST 2 ] (2 800 200 200) : " $GREEN"OK"$NC
-rm out
-timeout $TIMEOUT  ./philo 5 800 200 200 > out
-grep -q "died" out && echo -e "[ TEST 3 ] (5 800 200 200) :" $RED"KO"$NC || echo -e "[ TEST 3 ] (5 800 200 200) : " $GREEN"OK"$NC
-rm out
-timeout $TIMEOUT  ./philo 4 2147483647 200 200 > out
-grep -q "died" out && echo -e "[ TEST 4 ] (4 2147483647 200 200) :" $RED"KO"$NC || echo -e "[ TEST 4 ] (4 2147483647 200 200) : " $GREEN"OK"$NC
-rm out
-timeout $TIMEOUT  ./philo 200 410 200 200 > out
-grep -q "died" out && echo -e "[ TEST 5 ] (200 410 200 200) :" $RED"KO"$NC || echo -e "[ TEST 5 ] (200 410 200 200) : " $GREEN"OK"$NC
-rm out
+tester()
+{
+    input
+    echo -e "\n--Mandatory tests--"
+    total_tests=0
 
-echo "--Must eats--"
+    dying_test $TIMEOUT 1 800 200 200
+    living_test $TIMEOUT 5 800 200 200
+    must_eat_test 35 $TIMEOUT 5 800 200 200 7
+    living_test $TIMEOUT 4 410 200 200
+    dying_test $TIMEOUT 4 310 200 100
 
- ./philo 5 800 200 200 10 > out
-grep -q "died" out && echo -e "[ TEST 1 ] (5 800 200 200 10) :" $RED"KO"$NC || echo -e "[ TEST 1 ] (5 800 200 200 10) : " $GREEN"OK"$NC
-if [ $(grep "eating" out | wc -l) -ge 50 ]; then
-    echo -e "-> count : " $GREEN"OK" "("$(<out grep "eating" | wc -l)")"$NC "("$(<out grep "thinking" | wc -l)")" "("$(<out grep "sleeping" | wc -l)")"
-else
-    echo -e "-> count : " $RED"KO" "("$(<out grep "eating" | wc -l)")"$NC "("$(<out grep "thinking" | wc -l)")" "("$(<out grep "sleeping" | wc -l)")"
-fi
-rm out
- ./philo 5 800 200 200 7 > out
-grep -q "died" out && echo -e "[ TEST 2 ] (5 800 200 200 7) :" $RED"KO"$NC || echo -e "[ TEST 2 ] (5 800 200 200 7) : " $GREEN"OK"$NC
-if [ $(grep "eating" out | wc -l) -ge 35 ]; then
-    echo -e "-> count : " $GREEN"OK" "("$(<out grep "eating" | wc -l)")"$NC "("$(<out grep "thinking" | wc -l)")" "("$(<out grep "sleeping" | wc -l)")"
-else
-    echo -e "-> count : " $RED"KO" "("$(<out grep "eating" | wc -l)")"$NC "("$(<out grep "thinking" | wc -l)")" "("$(<out grep "sleeping" | wc -l)")"
-fi
-rm out
- ./philo 131 596 200 200 10 > out
-grep -q "died" out && echo -e "[ TEST 3 ] (131 596 200 200 10) :" $GREEN"OK"$NC || echo -e "[ TEST 3 ] (131 596 200 200 10) : " $RED"KO"$NC
-rm out
+    echo -e "\n--Dying tests--"
+    total_tests=0
+
+    dying_test $TIMEOUT 1 800 200 200
+    dying_test $TIMEOUT 1 200 200 200
+    dying_test $TIMEOUT 4 200 210 200
+    dying_test $TIMEOUT 1 800 200 200
+    dying_test $TIMEOUT 4 310 200 100
+    dying_test $TIMEOUT 131 596 200 200
+    dying_test $TIMEOUT 50 400 200 200
+    dying_test $TIMEOUT 131 596 200 200 10
+
+    echo -e "\n--Living tests--"
+    total_tests=0
+
+    living_test $TIMEOUT 4 410 200 200
+    living_test $TIMEOUT 2 800 200 200
+    living_test $TIMEOUT 5 800 200 200
+    living_test $TIMEOUT 4 2147483647 200 200
+    living_test $TIMEOUT 200 410 200 200
+
+
+    echo -e "\n--Must-eats tests--"
+    total_tests=0
+
+    must_eat_test 50 $TIMEOUT 5 800 200 200 10
+    must_eat_test 35 $TIMEOUT 5 800 200 200 7 
+}
+
+tester
