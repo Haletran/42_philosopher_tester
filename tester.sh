@@ -9,13 +9,13 @@ total_tests=0
 
 check_norminette()
 {
-    norminette -R CheckForbiddenSourceHeader > out
-    if grep -q "Error"; then
+    norminette > out
+    if <out grep -q "Error"; then
         echo -e "Norminette :" $RED"KO\n"$NC
-        cat out
     else
         echo -e "Norminette :" $GREEN"OK\n"$NC
     fi
+    rm out
 }
 
 dying_test()
