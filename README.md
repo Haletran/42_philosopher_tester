@@ -3,8 +3,6 @@
 ![Open Source](https://badges.frapsoft.com/os/v2/open-source.svg?v=103)
 
 >Minimalistic philosopher tester made in bash script
-<img src="show_tester.gif" width="600" height="500">
-
 
 ## Usage
 
