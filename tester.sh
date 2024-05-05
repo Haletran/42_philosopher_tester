@@ -7,6 +7,20 @@ NC='\033[0m'
 total_tests=0
 
 
+check_compilation()
+{
+    make re > out
+    if [ $? -ne 0 ]; then
+        echo -e "Compilation :" $RED"KO\n"$NC
+        rm out
+        exit 1
+    else
+        echo -e "Compilation :" $GREEN"OK\n"$NC
+    fi
+    rm out
+}
+
+
 check_norminette()
 {
     norminette $(pwd) > out
@@ -81,6 +95,7 @@ tester()
 {
     input
     check_norminette
+    check_compilation
     echo -e "\n--Mandatory tests--"
     total_tests=0
 
