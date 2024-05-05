@@ -9,7 +9,7 @@ total_tests=0
 
 check_norminette()
 {
-    norminette > out
+    norminette $(pwd) > out
     if <out grep -q "Error"; then
         echo -e "Norminette :" $RED"KO\n"$NC
     else
