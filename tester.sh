@@ -5,6 +5,8 @@ GREEN='\033[0;32m'
 RED='\033[0;31m'
 NC='\033[0m'
 total_tests=0
+successfull_tests=0
+total=0
 
 
 check_compilation()
@@ -38,6 +40,7 @@ parsing_test()
     timeout $1 ./philo "${@:2}"
     if [ $? -eq 1 ]; then
         echo -e "[ TEST $total_tests ] (${@:2}) : " $GREEN"OK"$NC
+        ((successfull_tests++))
     else
         echo -e "[ TEST $total_tests ] (${@:2}) :" $RED"KO"$NC
     fi
@@ -50,6 +53,7 @@ dying_test()
     timeout $1 $leak ./philo "${@:2}" > out
     if <out grep -q "died"; then
         echo -e "[ TEST $total_tests ] (${@:2}) : " $GREEN"OK"$NC "("$(grep "died" out)$NC")"
+        ((successfull_tests++))
     else
         echo -e "[ TEST $total_tests ] (${@:2}) :" $RED"KO"$NC
     fi
@@ -64,6 +68,7 @@ living_test()
         echo -e "[ TEST $total_tests ] (${@:2}) :" $RED"KO"$NC
     else
         echo -e "[ TEST $total_tests ] (${@:2}) : " $GREEN"OK"$NC
+        ((successfull_tests++))
     fi
     rm out
 }
@@ -76,6 +81,7 @@ must_eat_test()
         echo -e "[ TEST $total_tests ] (${@:3}) :" $RED"KO"$NC "("$(grep "died" out)$NC")"
     else
         echo -e "[ TEST $total_tests ] (${@:3}) : " $GREEN"OK"$NC
+        ((successfull_tests++))
     fi
     if [ $(grep "eating" out | wc -l) -ge $1 ]; then
         echo -e "-> count : " $GREEN"OK" "("$(<out grep "eating" | wc -l)")"$NC "("$(<out grep "thinking" | wc -l)")" "("$(<out grep "sleeping" | wc -l)")"
@@ -120,6 +126,7 @@ tester()
     parsing_test $TIMEOUT 5 800 asd 123
 
     echo -e "\n--Mandatory tests--"
+    total=$((total_tests + total))
     total_tests=0
 
     dying_test $TIMEOUT 1 800 200 200
@@ -129,6 +136,7 @@ tester()
     dying_test $TIMEOUT 4 310 200 100
 
     echo -e "\n--Dying tests--"
+    total=$((total_tests + total))
     total_tests=0
 
     dying_test $TIMEOUT 1 800 200 200
@@ -142,6 +150,7 @@ tester()
     dying_test $TIMEOUT 131 596 200 200 10
 
     echo -e "\n--Living tests--"
+    total=$((total_tests + total))
     total_tests=0
 
     living_test $TIMEOUT 4 410 200 200
@@ -154,6 +163,7 @@ tester()
 
 
     echo -e "\n--Must-eats tests--"
+    total=$((total_tests + total))
     total_tests=0
 
     must_eat_test 50 $TIMEOUT 5 800 200 200 10
@@ -161,6 +171,10 @@ tester()
     must_eat_test 190 $TIMEOUT 19 210 69 139 10
     must_eat_test 30 $TIMEOUT 3 210 65 135 10
     must_eat_test 180 $TIMEOUT 18 180 85 85 10
+
+    total=$((total_tests + total))
+
+    echo -e "\nTotal :" $MAGENTA"$successfull_tests/$total"$NC
 }
 
 tester
