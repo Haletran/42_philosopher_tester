@@ -32,6 +32,18 @@ check_norminette()
     rm out
 }
 
+parsing_test()
+{
+    ((total_tests++))
+    timeout $1 ./philo "${@:2}"
+    if [ $? -eq 1 ]; then
+        echo -e "[ TEST $total_tests ] (${@:2}) : " $GREEN"OK"$NC
+    else
+        echo -e "[ TEST $total_tests ] (${@:2}) :" $RED"KO"$NC
+    fi
+}
+
+
 dying_test()
 {
     ((total_tests++))
@@ -96,6 +108,17 @@ tester()
     input
     check_norminette
     check_compilation
+    echo -e "\n--Parsing tests--"
+    total_tests=0
+
+    parsing_test $TIMEOUT 1
+    parsing_test $TIMEOUT 0 410 200 200
+    parsing_test $TIMEOUT 1 800
+    parsing_test $TIMEOUT 1 800 200
+    parsing_test $TIMEOUT 4 2147483649 200 200
+    parsing_test $TIMEOUT 5 800 -200 200
+    parsing_test $TIMEOUT 5 800 asd 123
+
     echo -e "\n--Mandatory tests--"
     total_tests=0
 
