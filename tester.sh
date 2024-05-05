@@ -7,6 +7,17 @@ NC='\033[0m'
 total_tests=0
 
 
+check_norminette()
+{
+    norminette -R CheckForbiddenSourceHeader > out
+    if grep -q "Error"; then
+        echo -e "Norminette :" $RED"KO\n"$NC
+        cat out
+    else
+        echo -e "Norminette :" $GREEN"OK\n"$NC
+    fi
+}
+
 dying_test()
 {
     ((total_tests++))
@@ -69,6 +80,7 @@ input()
 tester()
 {
     input
+    check_norminette
     echo -e "\n--Mandatory tests--"
     total_tests=0
 
