@@ -29,7 +29,7 @@ check_simulation()
     fi
     echo -e $GREEN"No philosopher should die"$NC
 }
-echo -e "--This script will check if the simulation is correct or not--\n"
+echo -e "--This script will check if the philo should died or not--\n"
 read -p "Enter the id of the philosopher: " n_philo
 read -p "Enter the time to die: " time_to_die
 read -p "Enter the time to eat: " time_to_eat

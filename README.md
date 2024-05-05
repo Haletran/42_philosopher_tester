@@ -41,7 +41,7 @@ living_test $TIMEOUT 5 800 200 200
 
 ## Calculator
 
-Small script that check if the simulation is feasible or not.
+Small script that check if the philo should died or not.
 
 Run the script with this command :
 ```bash
