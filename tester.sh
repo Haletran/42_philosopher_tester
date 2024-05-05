@@ -115,6 +115,7 @@ tester()
     dying_test $TIMEOUT 4 310 200 100
     dying_test $TIMEOUT 131 596 200 200
     dying_test $TIMEOUT 50 400 200 200
+    dying_test $TIMEOUT 4 310 200 100 2
     dying_test $TIMEOUT 131 596 200 200 10
 
     echo -e "\n--Living tests--"
@@ -131,7 +132,10 @@ tester()
     total_tests=0
 
     must_eat_test 50 $TIMEOUT 5 800 200 200 10
-    must_eat_test 35 $TIMEOUT 5 800 200 200 7 
+    must_eat_test 35 $TIMEOUT 5 800 200 200 7
+    must_eat_test 190 $TIMEOUT 19 210 69 139 10
+    must_eat_test 30 $TIMEOUT 3 210 65 135 10
+    must_eat_test 180 $TIMEOUT 18 180 85 85 10
 }
 
 tester
