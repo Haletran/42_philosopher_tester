@@ -11,11 +11,11 @@ check_compilation()
 {
     make re > out
     if [ $? -ne 0 ]; then
-        echo -e "Compilation :" $RED"KO\n"$NC
+        echo -e "Compilation :" $RED"KO"$NC
         rm out
         exit 1
     else
-        echo -e "Compilation :" $GREEN"OK\n"$NC
+        echo -e "Compilation :" $GREEN"OK"$NC
     fi
     rm out
 }
