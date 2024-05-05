@@ -25,9 +25,9 @@ check_norminette()
 {
     norminette $(pwd) > out
     if <out grep -q "Error"; then
-        echo -e "Norminette :" $RED"KO\n"$NC
+        echo -e "Norminette :" $RED"KO"$NC
     else
-        echo -e "Norminette :" $GREEN"OK\n"$NC
+        echo -e "Norminette :" $GREEN"OK"$NC
     fi
     rm out
 }
