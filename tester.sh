@@ -63,6 +63,7 @@ input()
     else
         leak=""
     fi
+    clear
 }
 
 tester()
