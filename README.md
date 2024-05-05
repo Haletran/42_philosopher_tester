@@ -48,3 +48,8 @@ Run the script with this command :
 bash <(wget -qO- https://raw.githubusercontent.com/Haletran/42_philosopher_tester/main/calculator.sh)
 ```
 
+## License
+
+This project is licensed under the [MIT License](LICENSE)
+
+
