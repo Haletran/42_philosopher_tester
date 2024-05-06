@@ -102,7 +102,7 @@ input()
     read -p "Do you want to check leaks ? (y/N) : " LEAK
     if [ "$LEAK" = "y" ]; then
         echo -e $RED"the tester can cause some leaks on living_test"$NC
-        leak="valgrind --tool=helgrind --leak-check=full --fair-sched=yes"
+        leak="valgrind --tool=helgrind --fair-sched=yes"
     else
         leak=""
     fi
