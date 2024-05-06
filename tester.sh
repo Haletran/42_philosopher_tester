@@ -160,6 +160,7 @@ tester()
     living_test $TIMEOUT 200 410 200 200
     living_test $TIMEOUT 200 800 200 200
     living_test $TIMEOUT 105 800 200 200
+    living_test $TIMEOUT 113 800 200 200
 
 
     echo -e "\n--Must-eats tests--"
