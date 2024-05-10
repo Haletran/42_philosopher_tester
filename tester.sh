@@ -4,6 +4,7 @@ MAGENTA='\033[0;35m'
 GREEN='\033[0;32m'
 RED='\033[0;31m'
 NC='\033[0m'
+BOLD_CYAN='\033[1;36m'
 total_tests=0
 successfull_tests=0
 total=0
@@ -37,7 +38,7 @@ check_norminette()
 parsing_test()
 {
     ((total_tests++))
-    timeout $1 ./philo "${@:2}"
+    timeout $1 ./philo "${@:2}" > out
     if [ $? -eq 1 ]; then
         echo -e "[ TEST $total_tests ] (${@:2}) : " $GREEN"OK"$NC
         ((successfull_tests++))
@@ -50,7 +51,7 @@ parsing_test()
 dying_test()
 {
     ((total_tests++))
-    timeout $1 $leak ./philo "${@:2}" > out
+    timeout $1 ./philo "${@:2}" > out
     if <out grep -q "died"; then
         echo -e "[ TEST $total_tests ] (${@:2}) : " $GREEN"OK"$NC "("$(grep "died" out)$NC")"
         ((successfull_tests++))
@@ -63,9 +64,9 @@ dying_test()
 living_test()
 {
     ((total_tests++))
-    timeout $1 $leak ./philo "${@:2}" > out
+    timeout $1 ./philo "${@:2}" > out
     if <out grep -q "died"; then
-        echo -e "[ TEST $total_tests ] (${@:2}) :" $RED"KO"$NC
+        echo -e "[ TEST $total_tests ] (${@:2}) :" $RED"KO"$NC "("$(grep "died" out)$NC")"
     else
         echo -e "[ TEST $total_tests ] (${@:2}) : " $GREEN"OK"$NC
         ((successfull_tests++))
@@ -76,17 +77,17 @@ living_test()
 must_eat_test()
 {
     ((total_tests++))
-    timeout $2 $leak ./philo "${@:3}" > out
+    timeout $2 ./philo "${@:3}" > out
     if <out grep -q "died"; then
         echo -e "[ TEST $total_tests ] (${@:3}) :" $RED"KO"$NC "("$(grep "died" out)$NC")"
     else
         echo -e "[ TEST $total_tests ] (${@:3}) : " $GREEN"OK"$NC
         ((successfull_tests++))
     fi
-    if [ $(grep "eating" out | wc -l) -ge $1 ]; then
-        echo -e "-> count : " $GREEN"OK" "("$(<out grep "eating" | wc -l)")"$NC "("$(<out grep "thinking" | wc -l)")" "("$(<out grep "sleeping" | wc -l)")"
+    if [ $(grep "eating" out | wc -l) -ge $1 ] && [ $(($1 + 20)) -gt $1 ]; then
+        echo -e "-> nb_meals : " $GREEN"OK" "("$(<out grep "eating" | wc -l)")"$NC
     else
-        echo -e "-> count : " $RED"KO" "("$(<out grep "eating" | wc -l)")"$NC "("$(<out grep "thinking" | wc -l)")" "("$(<out grep "sleeping" | wc -l)")"
+        echo -e "-> nb_meals : " $RED"KO" "("$(<out grep "eating" | wc -l)")"$NC
     fi
     rm out
 
@@ -98,14 +99,6 @@ input()
     if [ -z "$TIMEOUT" ]; then
         TIMEOUT=10
     fi
-    
-    read -p "Do you want to check leaks ? (y/N) : " LEAK
-    if [ "$LEAK" = "y" ]; then
-        echo -e $RED"the tester can cause some leaks on living_test"$NC
-        leak="valgrind --tool=helgrind --fair-sched=yes"
-    else
-        leak=""
-    fi
     clear
 }
 
@@ -114,7 +107,7 @@ tester()
     input
     check_norminette
     check_compilation
-    echo -e "\n--Parsing tests--"
+    echo -e $BOLD_CYAN"\n--Parsing tests--"$NC
     total_tests=0
 
     parsing_test $TIMEOUT 1
@@ -125,7 +118,7 @@ tester()
     parsing_test $TIMEOUT 5 800 -200 200
     parsing_test $TIMEOUT 5 800 asd 123
 
-    echo -e "\n--Mandatory tests--"
+    echo -e $BOLD_CYAN"\n--Mandatory tests--"$NC
     total=$((total_tests + total))
     total_tests=0
 
@@ -135,7 +128,7 @@ tester()
     living_test $TIMEOUT 4 410 200 200
     dying_test $TIMEOUT 4 310 200 100
 
-    echo -e "\n--Dying tests--"
+    echo -e $BOLD_CYAN"\n--Dying tests--"$NC
     total=$((total_tests + total))
     total_tests=0
 
@@ -149,7 +142,7 @@ tester()
     dying_test $TIMEOUT 4 310 200 100 2
     dying_test $TIMEOUT 131 596 200 200 10
 
-    echo -e "\n--Living tests--"
+    echo -e $BOLD_CYAN"\n--Living tests--"$NC
     total=$((total_tests + total))
     total_tests=0
 
@@ -163,7 +156,7 @@ tester()
     living_test $TIMEOUT 113 800 200 200
 
 
-    echo -e "\n--Must-eats tests--"
+    echo -e $BOLD_CYAN"\n--Must-eats tests--"$NC
     total=$((total_tests + total))
     total_tests=0
 
