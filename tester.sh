@@ -57,7 +57,7 @@ dying_test()
 {
     ((total_tests++))
     timeout $1 ./philo "${@:2}" > out
-    if <out grep -q "died"; then
+    if grep -q "died" out && [ $(grep "died" out | wc -l) -eq 1 ]; then
         echo -e "[ TEST $total_tests ] (${@:2}) : " $GREEN"OK"$NC "("$(grep "died" out)$NC")"
         ((successfull_tests++))
     else
