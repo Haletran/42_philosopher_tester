@@ -9,6 +9,11 @@ total_tests=0
 successfull_tests=0
 total=0
 
+handle_ctrl_c()
+{
+    echo -e "\nStopped tester"
+    exit 1
+}
 
 check_compilation()
 {
@@ -39,14 +44,14 @@ parsing_test()
 {
     ((total_tests++))
     timeout $1 ./philo "${@:2}" > out
-    if [ $? -eq 1 ]; then
+    if [ $? -eq 1 ] || grep -q "Error" out || [ $(wc -l < out) -le 2 ]; then
         echo -e "[ TEST $total_tests ] (${@:2}) : " $GREEN"OK"$NC
         ((successfull_tests++))
     else
         echo -e "[ TEST $total_tests ] (${@:2}) :" $RED"KO"$NC
     fi
+    rm out
 }
-
 
 dying_test()
 {
@@ -107,6 +112,7 @@ tester()
     input
     check_norminette
     check_compilation
+    trap handle_ctrl_c INT
     echo -e $BOLD_CYAN"\n--Parsing tests--"$NC
     total_tests=0
 
