@@ -89,7 +89,7 @@ check_every_philo()
 
     while((count != philo_count + 1))
     do
-        if [ $(grep -w "$count is eating" out | wc -l) -ge $1 ]; then
+        if [ $(grep -w "$count is eating" out | wc -l) -ge $2 ]; then
             echo -e "-> Philo $count has eaten enough : " $GREEN"OK"$NC "("$(grep -w "$count is eating" out | wc -l)")"
         else 
             echo -e "-> Philo $count has not eaten enough : " $RED"KO"$NC "("$(grep -w "$count is eating" out | wc -l)")"
