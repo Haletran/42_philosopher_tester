@@ -8,10 +8,12 @@ BOLD_CYAN='\033[1;36m'
 total_tests=0
 successfull_tests=0
 total=0
+philo_count=0
 
 handle_ctrl_c()
 {
     echo -e "\nStopped tester"
+    rm out
     exit 1
 }
 
@@ -79,23 +81,44 @@ living_test()
     rm out
 }
 
+
+check_every_philo()
+{
+    count=1
+    philo_count=$1
+
+    while((count != philo_count + 1))
+    do
+        if [ $(grep -w "$count is eating" out | wc -l) -ge $1 ]; then
+            echo -e "-> Philo $count has eaten enough : " $GREEN"OK"$NC "("$(grep -w "$count is eating" out | wc -l)")"
+        else 
+            echo -e "-> Philo $count has not eaten enough : " $RED"KO"$NC "("$(grep -w "$count is eating" out | wc -l)")"
+            ((successfull_tests--))
+        fi
+        ((count++))
+    done
+}
+
 must_eat_test()
 {
     ((total_tests++))
-    timeout $2 ./philo "${@:3}" > out
-    if <out grep -q "died"; then
+    timeout $2 ./philo "${@:3}" | sed 's/\x1b\[[0-9;]*m//g' > out
+    if <out grep -q "died" && <out wc -l -eq 1 ; then
         echo -e "[ TEST $total_tests ] (${@:3}) :" $RED"KO"$NC "("$(grep "died" out)$NC")"
     else
         echo -e "[ TEST $total_tests ] (${@:3}) : " $GREEN"OK"$NC
         ((successfull_tests++))
     fi
-    if [ $(grep "eating" out | wc -l) -ge $1 ] && [ $(($1 + 20)) -gt $1 ]; then
-        echo -e "-> nb_meals : " $GREEN"OK" "("$(<out grep "eating" | wc -l)")"$NC
+    eating_count=$(grep -w "eating" out | wc -l)
+    args=("${@:3}")
+    check_every_philo ${args[0]} ${args[4]}
+    if [ $eating_count -ge $1 ]; then
+        echo -e "--[ Total : " $GREEN"OK" "("$(grep -w "eating" out | wc -l)")"$NC" ]--"
     else
-        echo -e "-> nb_meals : " $RED"KO" "("$(<out grep "eating" | wc -l)")"$NC
+        echo -e "--[ Total : " $RED"KO" "("$(grep -w "eating" out | wc -l)")"$NC" ]--"
+        ((successfull_tests--))
     fi
     rm out
-
 }
 
 input()
