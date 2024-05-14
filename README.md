@@ -38,16 +38,6 @@ Exemple if you want to add a test that check if the simulation runs forever, add
 living_test $TIMEOUT 5 800 200 200
 ```
 
-
-## Calculator
-
-Small script that check if the philo should died or not.
-
-Run the script with this command :
-```bash
-bash <(wget -qO- https://raw.githubusercontent.com/Haletran/42_philosopher_tester/main/calculator.sh)
-```
-
 ## License
 
 This project is licensed under the [MIT License](LICENSE)
