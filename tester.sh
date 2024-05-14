@@ -103,7 +103,7 @@ must_eat_test()
 {
     ((total_tests++))
     timeout $2 ./philo "${@:3}" | sed 's/\x1b\[[0-9;]*m//g' > out
-    if <out grep -q "died" && <out wc -l -eq 1 ; then
+    if <out grep -q "died"; then
         echo -e "[ TEST $total_tests ] (${@:3}) :" $RED"KO"$NC "("$(grep "died" out)$NC")"
     else
         echo -e "[ TEST $total_tests ] (${@:3}) : " $GREEN"OK"$NC
