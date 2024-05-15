@@ -223,7 +223,7 @@ tester()
     fi
     total=$((total_tests + total))
 
-    notify-send "Philo tester" "Total : $successfull_tests/$total"  
+    notify-send "Job complete" "Total : $successfull_tests/$total"  
     echo -e "\nTotal :" $MAGENTA"$successfull_tests/$total"$NC
 }
 
