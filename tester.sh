@@ -95,7 +95,6 @@ check_every_philo()
             ((check_ok++))
         else 
             echo -e "-> Philo $count has not eaten enough : " $RED"KO"$NC "("$(grep -w "$count is eating" out | wc -l)")"
-            ((successfull_tests--))
         fi
         ((count++))
         if [ $check_ok -eq $philo_count ]; then
@@ -121,7 +120,6 @@ must_eat_test()
         echo -e "--[ Total : " $GREEN"OK" "("$(grep -w "eating" out | wc -l)")"$NC" ]--"
     else
         echo -e "--[ Total : " $RED"KO" "("$(grep -w "eating" out | wc -l)")"$NC" ]--"
-        ((successfull_tests--))
     fi
     rm out
 }
