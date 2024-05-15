@@ -99,7 +99,7 @@ check_every_philo()
         fi
         ((count++))
         if [ $check_ok -eq $philo_count ]; then
-            echo -e "-> All philos have eaten at least "$BOLD$2$NC" : " $GREEN"OK"$NC
+            echo -e "-> All philos have eaten at least "$BOLD$2$NC time" : " $GREEN"OK"$NC
         fi
     done
 }
@@ -223,6 +223,7 @@ tester()
     fi
     total=$((total_tests + total))
 
+    notify-send "Philo tester" "Total : $successfull_tests/$total"  
     echo -e "\nTotal :" $MAGENTA"$successfull_tests/$total"$NC
 }
 
