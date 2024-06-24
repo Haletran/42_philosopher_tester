@@ -207,6 +207,9 @@ tester()
         living_test $TIMEOUT 200 800 200 200
         living_test $TIMEOUT 105 800 200 200
         living_test $TIMEOUT 113 800 200 200
+        living_test $TIMEOUT 5 310 100 100
+        living_test $TIMEOUT 4 190 60 60
+        living_test $TIMEOUT 3 190 60 60
     fi
 
     if [ $CHOICE -eq 5 ] || [ $CHOICE -eq 0 ]; then
